@@ -1,0 +1,178 @@
+$primary-color: #f59023;
+
+:root {
+  --primary-color: #{$primary-color};
+  --primary-color-hover: #e07c1e;
+  --neutral-border: #ccc;
+  --text-color: #333;
+  --font-family: "Roboto", sans-serif;
+  --transition-speed: 0.3s;
+  --base-font-size: 16px;
+  --small-font-size: 0.875rem;
+  --large-font-size: 1.25rem;
+}
+
+/* Global Styles */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.login {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background-color: #f9f9f9;
+  .left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .login-content {
+      width: 75%;
+      padding: 3rem 2rem;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      background-color: #fff;
+      animation: fadeIn 0.5s ease-in-out;
+      h1 {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: var(--large-font-size);
+        color: var(--text-color);
+      }
+      form {
+        height: 30vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        gap: 2vh;
+        input {
+          padding: 10px;
+          border: 1px solid var(--neutral-border);
+          border-radius: 5px;
+          color: var(--text-color);
+          transition: border-color var(--transition-speed) ease;
+          font-family: var(--font-family);
+          &:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(245, 144, 35, 0.5);
+            outline: none;
+          }
+        }
+        button {
+          padding: 10px;
+          border: none;
+          border-radius: 5px;
+          background-color: var(--primary-color);
+          color: #ffffff;
+          cursor: pointer;
+          font-size: var(--small-font-size);
+          font-weight: 600;
+          transition: background-color var(--transition-speed) ease;
+          font-family: var(--font-family);
+          &:hover {
+            background-color: lighten($primary-color, 10%);
+          }
+          &:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+          }
+        }
+      }
+    }
+  }
+  .right {
+    background: linear-gradient(135deg, #f9f9f9, #ffffff);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+    .top {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 2rem;
+      img {
+        width: 65%;
+        max-width: 80%;
+        border-radius: 8px;
+      }
+    }
+    .bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 2vh;
+      h2 {
+        margin-bottom: 1rem;
+        font-size: var(--large-font-size);
+        color: var(--text-color);
+      }
+      p {
+        margin-bottom: 1.5rem;
+        font-size: var(--small-font-size);
+        color: var(--text-color);
+      }
+      .social-media {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+
+        a {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 3rem;
+          height: 3rem;
+          background-color: var(--primary-color);
+          svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            fill: #ffffff;
+            transition: transform var(--transition-speed),
+              fill var(--transition-speed);
+          }
+          &:hover {
+            transition: background-color var(--transition-speed);
+            background-color: transparent;
+            border: 1px solid var(--primary-color-hover);
+            svg {
+              transform: scale(1.1);
+              fill: var(--primary-color-hover);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .login {
+      grid-template-columns: 1fr;
+    }
+    .login-content {
+      width: 90%;
+    }
+    button {
+      font-size: 4rem;
+    }
+    .social-media a {
+      font-size: 4rem;
+    }
+  }
+}
