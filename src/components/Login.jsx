@@ -25,7 +25,7 @@ export default function Login() {
     try {
       await axios({
         method: "post",
-        url: "https://brightly-immortal-anemone.ngrok-free.app/api/accounts/login/",
+        url: "http://localhost:8000/api/accounts/login/",
         data: loginData,
       })
         .then((res) => {

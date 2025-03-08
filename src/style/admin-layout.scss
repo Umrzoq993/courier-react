@@ -1,8 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
 :root {
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 80px;
   --primary-color: #f59023;
-  --primary-color-hover: #e07c1e;
   --background-color: #ffffff;
   --text-color: #333;
   --transition-speed: 0.3s;
@@ -13,26 +14,45 @@
   height: 100vh;
   background-color: #f9f9f9;
   font-family: "Montserrat", sans-serif;
+  position: relative;
+}
 
-  .sidebar {
-    width: 250px;
-    transition: width var(--transition-speed);
+.admin-layout .main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-speed);
+}
+
+.admin-layout .content-area {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+/* Adjust margin on desktop if sidebar is collapsed */
+.admin-layout .sidebar.collapsed + .main-content {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Mobile: remove left margin */
+@media (max-width: 768px) {
+  .admin-layout .main-content {
+    margin-left: 0;
   }
 
-  .sidebar.collapsed {
-    width: 80px;
+  .overlay {
+    display: none;
   }
 
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--background-color);
-    transition: margin-left var(--transition-speed);
-  }
-
-  .content-area {
-    flex: 1;
-    padding: 1.5rem;
+  .overlay.active {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 900;
   }
 }

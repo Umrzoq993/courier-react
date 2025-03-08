@@ -1,13 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
-:root {
-  --primary-color: #f59023;
-  --primary-color-hover: #e07c1e;
-  --background-color: #ffffff;
-  --text-color: #333;
-  --transition-speed: 0.3s;
-}
-
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -15,7 +7,6 @@
   padding: 0.75rem 1.5rem;
   background-color: var(--background-color);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  font-family: "Montserrat", sans-serif;
 
   .navbar-left {
     display: flex;
@@ -55,6 +46,20 @@
       &:hover {
         color: var(--primary-color-hover);
       }
+    }
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem 1rem;
+    .navbar-title {
+      font-size: 1rem;
+    }
+    .menu-toggle,
+    .notification {
+      font-size: 1.25rem;
     }
   }
 }

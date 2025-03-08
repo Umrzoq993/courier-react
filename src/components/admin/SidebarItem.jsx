@@ -1,58 +1,71 @@
-import "../../style/sidebar.scss";
 import React from "react";
+import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
+import { Link } from "react-router-dom";
+import { CgProductHunt } from "react-icons/cg";
 import {
   RiHome4Line,
-  RiTeamLine,
-  RiCalendar2Line,
   RiFolder2Line,
-  RiUserFollowLine,
-  RiPlantLine,
   RiStackLine,
-  RiUserUnfollowLine,
+  RiPlantLine,
 } from "react-icons/ri";
-import { Sidebar, SubMenu, Menu, MenuItem } from "react-pro-sidebar";
+import "../../style/sidebar.scss";
 
-function SidebarItem({ collapsed }) {
+export default function SidebarItem({ collapsed, toggled, onHeaderClick }) {
   return (
-    <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+    <div
+      className={`sidebar ${toggled ? "mobile-open" : ""} ${
+        collapsed ? "collapsed" : ""
+      }`}
+    >
       <Sidebar
-        className={`app ${collapsed ? "collapsed" : ""}`}
-        style={{ height: "100%", position: "absolute" }}
+        style={{ height: "100%", position: "fixed" }}
         collapsed={collapsed}
+        toggled={toggled}
       >
-        <main>
-          <Menu>
-            <MenuItem>
-              <div
-                style={{
-                  padding: "9px",
-                  fontWeight: "bold",
-                  fontSize: 14,
-                  letterSpacing: "1px",
-                }}
-              >
-                TUJJOR EXPRESS
-              </div>
-            </MenuItem>
-            <hr />
-          </Menu>
-
-          <Menu>
-            <MenuItem icon={<RiHome4Line />}>Dashboard</MenuItem>
-            <SubMenu defaultOpen label={"Professors"} icon={<RiTeamLine />}>
-              <MenuItem icon={<RiUserFollowLine />}>Active</MenuItem>
-              <MenuItem icon={<RiUserUnfollowLine />}>Ex Professors</MenuItem>
-              <MenuItem icon={<RiCalendar2Line />}>Probation Period</MenuItem>
-            </SubMenu>
-            <SubMenu defaultOpen label={"Records"} icon={<RiFolder2Line />}>
-              <MenuItem icon={<RiStackLine />}>Senior Students</MenuItem>
-              <MenuItem icon={<RiPlantLine />}>Junior Students</MenuItem>
-            </SubMenu>
-          </Menu>
-        </main>
+        <Menu>
+          <MenuItem onClick={onHeaderClick}>
+            <div
+              onClick={onHeaderClick}
+              style={{
+                padding: "9px",
+                fontWeight: "bold",
+                fontSize: collapsed ? 0 : 14,
+                letterSpacing: "1px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {collapsed ? (
+                // Display logo image when collapsed
+                <img
+                  src="/tujjor_logo.png"
+                  alt="Logo"
+                  style={{ height: "40px", width: "auto" }}
+                />
+              ) : (
+                "TUJJOR EXPRESS"
+              )}
+            </div>
+          </MenuItem>
+          <hr />
+        </Menu>
+        <Menu>
+          <MenuItem component={<Link to="/main" />} icon={<RiHome4Line />}>
+            Dashboard
+          </MenuItem>
+          <MenuItem
+            component={<Link to="/main/products" />}
+            icon={<CgProductHunt />}
+          >
+            Products
+          </MenuItem>
+          <SubMenu defaultOpen label="Records" icon={<RiFolder2Line />}>
+            <MenuItem icon={<RiStackLine />}>Senior Students</MenuItem>
+            <MenuItem icon={<RiPlantLine />}>Junior Students</MenuItem>
+          </SubMenu>
+        </Menu>
       </Sidebar>
     </div>
   );
 }
-
-export default SidebarItem;

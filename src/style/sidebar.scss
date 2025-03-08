@@ -1,88 +1,33 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
 :root {
-  --primary-color: #f59023;
-  --primary-color-hover: #e07c1e;
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 80px;
   --background-color: #ffffff;
-  --text-color: #333;
   --transition-speed: 0.3s;
-  --small-font-size: 0.875rem;
-  --medium-font-size: 1rem;
-}
-
-/* Global Reset & Font */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family, "Montserrat", sans-serif);
 }
 
 .sidebar {
   background-color: var(--background-color);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
-  width: 100%;
+  width: var(--sidebar-width);
   height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: transform var(--transition-speed), width var(--transition-speed);
+  z-index: 1000;
 
-  /* Override default styles of react-pro-sidebar if needed */
-  .pro-sidebar {
-    background-color: var(--background-color) !important;
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
+  &.collapsed {
+    width: var(--sidebar-collapsed-width);
   }
 
-  /* General Link Styling */
-  a {
-    text-decoration: none;
-    color: var(--text-color);
-    transition: color var(--transition-speed);
-    &:hover {
-      color: var(--primary-color-hover);
-    }
-  }
+  /* Mobile: hide sidebar by default */
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
 
-  /* Menu Item & Anchor Styling */
-  .menu-anchor,
-  .pro-menu-item {
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
-    transition: background-color var(--transition-speed),
-      font-weight var(--transition-speed);
-    &:hover {
-      background-color: rgba(245, 144, 35, 0.1);
-      font-weight: 500;
-    }
-  }
-
-  .menu-label {
-    font-size: var(--small-font-size);
-    color: var(--text-color);
-  }
-
-  /* Minimalist Button Style */
-  button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    outline: none;
-  }
-
-  /* Subtle Horizontal Rule */
-  hr {
-    border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin: 1rem 0;
-  }
-
-  /* Additional styling for submenu inner items */
-  .pro-inner-item {
-    padding: 0.5rem 1rem;
-    font-size: var(--medium-font-size);
-    color: var(--text-color);
-    transition: background-color var(--transition-speed);
-    &:hover {
-      background-color: rgba(245, 144, 35, 0.1);
+    /* When mobile-open class is present, slide in */
+    &.mobile-open {
+      transform: translateX(0);
     }
   }
 }
