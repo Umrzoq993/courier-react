@@ -9,6 +9,13 @@ import {
   RiPlantLine,
 } from "react-icons/ri";
 import "../../style/sidebar.scss";
+import {
+  Truck,
+  HomeIcon,
+  ShoppingCart,
+  Landmark,
+  Building2Icon,
+} from "lucide-react";
 
 export default function SidebarItem({ collapsed, toggled, onHeaderClick }) {
   return (
@@ -51,19 +58,27 @@ export default function SidebarItem({ collapsed, toggled, onHeaderClick }) {
           <hr />
         </Menu>
         <Menu>
-          <MenuItem component={<Link to="/main" />} icon={<RiHome4Line />}>
+          <MenuItem component={<Link to="/main" />} icon={<HomeIcon />}>
             Dashboard
           </MenuItem>
           <MenuItem
             component={<Link to="/main/products" />}
-            icon={<CgProductHunt />}
+            icon={<ShoppingCart />}
           >
             Products
           </MenuItem>
-          <SubMenu defaultOpen label="Records" icon={<RiFolder2Line />}>
-            <MenuItem icon={<RiStackLine />}>Senior Students</MenuItem>
-            <MenuItem icon={<RiPlantLine />}>Junior Students</MenuItem>
-          </SubMenu>
+          <MenuItem component={<Link to="/main/couriers" />} icon={<Truck />}>
+            Couriers
+          </MenuItem>
+          <MenuItem component={<Link to="/main/cities" />} icon={<Landmark />}>
+            Cities
+          </MenuItem>
+          <MenuItem
+            component={<Link to="/main/regions" />}
+            icon={<Building2Icon />}
+          >
+            Regions
+          </MenuItem>
         </Menu>
       </Sidebar>
     </div>

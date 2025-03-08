@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+
+:root {
+  --primary-color: #5c67f2;
+  --primary-color-hover: #4a54e1;
+  --background-color: #ffffff;
+  --text-color: #333;
+  --transition-speed: 0.3s;
+}
+
+.cities-table {
+  padding: 1.5rem;
+  font-family: "Montserrat", sans-serif;
+
+  h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--text-color);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--background-color);
+
+    thead {
+      background-color: #eee;
+
+      th {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: var(--text-color);
+        border-bottom: 2px solid #ccc;
+        text-align: left;
+      }
+    }
+
+    tbody {
+      tr {
+        transition: background-color var(--transition-speed);
+
+        &:hover {
+          background-color: rgba(92, 103, 242, 0.1);
+        }
+
+        td {
+          padding: 0.75rem;
+          font-size: 0.9rem;
+          border-bottom: 1px solid #ccc;
+          color: var(--text-color);
+        }
+      }
+    }
+  }
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  .cities-table {
+    padding: 1rem;
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+
+      thead {
+        th {
+          padding: 0.5rem;
+          font-size: 0.85rem;
+        }
+      }
+
+      tbody {
+        tr {
+          td {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  justify-content: center;
+
+  li {
+    margin: 0 0.3rem;
+
+    a {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #333;
+      font-size: 0.9rem;
+    }
+  }
+
+  .active a {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+  }
+}
