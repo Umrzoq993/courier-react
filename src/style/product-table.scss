@@ -1,25 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
-:root {
-  --primary-color: #f59023;
-  --primary-color-hover: #e07c1e;
-  --background-color: #ffffff;
-  --text-color: #333;
-  --transition-speed: 0.3s;
-}
-
-.product-list {
-  padding: 1.5rem;
+.product-table {
+  padding: 1rem;
   font-family: "Montserrat", sans-serif;
-  background: #fefefe;
-  color: var(--text-color);
-
-  h2 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    text-align: center;
-  }
 
   .filter-bar {
     margin-bottom: 1rem;
@@ -28,167 +11,77 @@
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
-      align-items: center;
 
       label {
-        font-size: 0.9rem;
         display: flex;
         flex-direction: column;
-        color: var(--text-color);
+        font-size: 0.9rem;
+        color: #333;
       }
 
       select,
       input {
-        padding: 0.5rem;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
+        padding: 0.4rem;
         font-size: 0.9rem;
       }
 
       button {
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.75rem;
         border: none;
-        background-color: var(--primary-color);
-        color: #fff;
         cursor: pointer;
-        border-radius: 4px;
-        transition: background-color var(--transition-speed);
         font-size: 0.9rem;
-
+        background-color: #f59023;
+        color: white;
+        border-radius: 4px;
+        transition: background-color 0.2s;
         &:hover {
-          background-color: var(--primary-color-hover);
+          background-color: #e07c1e;
         }
       }
     }
   }
 
-  table {
+  .minimal-table {
     width: 100%;
     border-collapse: collapse;
-    background: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-top: 1rem;
 
-    thead {
-      background: #f9f9f9;
-
-      th {
-        padding: 0.75rem;
-        text-align: left;
-        font-size: 0.9rem;
-        font-weight: 600;
-        border-bottom: 1px solid #e0e0e0;
-      }
-    }
-
-    tbody {
-      tr {
-        transition: background 0.3s;
-
-        &:hover {
-          background: #f1f1f1;
-        }
-
-        td {
-          padding: 0.75rem;
-          font-size: 0.9rem;
-          border-bottom: 1px solid #e0e0e0;
-        }
-      }
-    }
-  }
-
-  .courier-dropdown {
-    padding: 0.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    background: #fff;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    transition: border-color var(--transition-speed);
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-    }
-  }
-
-  /* Responsive styles for mobile devices */
-  @media (max-width: 768px) {
-    padding: 1rem;
-
-    .filter-bar {
-      form {
-        flex-direction: column;
-        gap: 0.5rem;
-
-        label {
-          width: 100%;
-          font-size: 0.85rem;
-        }
-
-        select,
-        input {
-          font-size: 0.85rem;
-          padding: 0.4rem;
-        }
-
-        button {
-          font-size: 0.85rem;
-          padding: 0.4rem 0.8rem;
-        }
-      }
-    }
-
-    table {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-
-      thead {
-        th {
-          padding: 0.5rem;
-          font-size: 0.85rem;
-        }
-      }
-
-      tbody {
-        tr {
-          td {
-            padding: 0.5rem;
-            font-size: 0.85rem;
-          }
-        }
-      }
-    }
-  }
-}
-
-.pagination {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-
-  li {
-    margin: 0 0.25rem;
-
-    a {
-      padding: 0.5rem 0.75rem;
+    th,
+    td {
       border: 1px solid #ddd;
-      color: #333;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      text-align: left;
+    }
 
-      &:hover {
-        background-color: #f0f0f0;
-      }
+    th {
+      background-color: #f9f9f9;
+      font-weight: bold;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5;
     }
   }
 
-  .active a {
-    background-color: var(--primary-color);
-    color: #fff;
-    border-color: var(--primary-color);
+  .pagination {
+    display: flex;
+    list-style: none;
+    justify-content: center;
+    margin-top: 1rem;
+
+    li {
+      margin: 0 5px;
+      cursor: pointer;
+
+      a {
+        text-decoration: none;
+        color: #333;
+      }
+
+      &.active a {
+        color: #f59023;
+      }
+    }
   }
 }

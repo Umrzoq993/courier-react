@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios"; // or your axiosConfig
 import ReactPaginate from "react-paginate";
-import axios from "../../axiosConfig";
 import "../../style/product-table.scss";
 
 const defaultFilters = {
@@ -10,155 +10,218 @@ const defaultFilters = {
   assigned: "",
 };
 
-const ProductList = () => {
+export default function ProductTable() {
+  // Product data & pagination
   const [products, setProducts] = useState([]);
-  const [couriers, setCouriers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10); // or let user pick
   const [totalCount, setTotalCount] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter input
+  // Cascade filter data
+  const [regions, setRegions] = useState([]);
+  const [allCities, setAllCities] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+
+  // Couriers list
+  const [couriers, setCouriers] = useState([]);
+
+  // Filter states
   const [filterInput, setFilterInput] = useState({ ...defaultFilters });
   const [filters, setFilters] = useState({ ...defaultFilters });
 
-  const API_URL = "http://localhost:8000/api/accounts/products/";
-  const COURIER_URL = "http://localhost:8000/api/accounts/couriers/";
-  const token = localStorage.getItem("access");
+  // Loading & error
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const fetchProducts = async (page) => {
+  // On mount, fetch region/city/couriers
+  useEffect(() => {
+    fetchRegions();
+    fetchCities();
+    fetchCouriers();
+  }, []);
+
+  // Re-fetch products when filters or currentPage changes
+  useEffect(() => {
+    fetchProducts(currentPage);
+  }, [filters, currentPage]);
+
+  // -------------- FETCH FUNCTIONS --------------
+  const fetchProducts = async (pageNumber) => {
     setLoading(true);
+    setError(null);
     try {
-      // Merge filters with pagination params
-      const params = {
-        ...filters,
-        page: page,
-        page_size: pageSize,
-      };
-      const response = await axios.get(API_URL, {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
-      });
-      // If using DRF pagination, "results" array contains the items
-      setProducts(response.data.results);
-      setTotalCount(response.data.count);
-      setLoading(false);
+      const token = localStorage.getItem("access");
+      const params = { ...filters, page: pageNumber };
+      const response = await axios.get(
+        "http://localhost:8000/api/accounts/products/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params,
+        }
+      );
+      // DRF paginated => { count, next, previous, results }
+      const data = response.data;
+      setProducts(data.results || []);
+      setTotalCount(data.count || 0);
+      const pages = Math.ceil((data.count || 0) / 10);
+      setPageCount(pages);
     } catch (err) {
       setError(err.message || "Error fetching products");
+    } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRegions = async () => {
+    try {
+      const token = localStorage.getItem("access");
+      const res = await axios.get(
+        "http://localhost:8000/api/accounts/regions/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = Array.isArray(res.data.results)
+        ? res.data.results
+        : res.data;
+      setRegions(data);
+    } catch (err) {
+      console.error("Error fetching regions:", err);
+    }
+  };
+
+  const fetchCities = async () => {
+    try {
+      const token = localStorage.getItem("access");
+      const res = await axios.get(
+        "http://localhost:8000/api/accounts/cities/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = Array.isArray(res.data.results)
+        ? res.data.results
+        : res.data;
+      setAllCities(data);
+    } catch (err) {
+      console.error("Error fetching cities:", err);
     }
   };
 
   const fetchCouriers = async () => {
     try {
-      const response = await axios.get(COURIER_URL, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // If backend uses DRF pagination
-      // setCouriers(response.data.results);
-      // If your backend returns raw array (no pagination), use:
-      // setCouriers(response.data);
-
-      // Safest approach: check whether .results exists
-      if (Array.isArray(response.data.results)) {
-        setCouriers(response.data.results);
-      } else if (Array.isArray(response.data)) {
-        setCouriers(response.data);
-      } else {
-        setCouriers([]);
-        console.warn("Unexpected format for couriers response:", response.data);
-      }
+      const token = localStorage.getItem("access");
+      const res = await axios.get(
+        "http://localhost:8000/api/accounts/couriers/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      // Might be paginated => handle .results if so
+      const data = Array.isArray(res.data.results)
+        ? res.data.results
+        : res.data;
+      setCouriers(data);
     } catch (err) {
       console.error("Error fetching couriers:", err);
     }
   };
 
-  // Whenever filters or current page change, re-fetch products
-  useEffect(() => {
-    fetchProducts(currentPage);
-    // eslint-disable-next-line
-  }, [filters, currentPage]);
-
-  useEffect(() => {
-    fetchCouriers();
-    // eslint-disable-next-line
-  }, []);
-
-  // Filter input handlers
-  const handleInputChange = (e) => {
+  // -------------- CASCADE FILTER LOGIC --------------
+  const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilterInput((prev) => ({ ...prev, [name]: value }));
+
+    // Cascade logic for region -> city
+    if (name === "region") {
+      setFilterInput((prev) => ({ ...prev, city: "" }));
+      if (value) {
+        const regionId = parseInt(value, 10);
+        const filtered = allCities.filter((c) => {
+          if (typeof c.region === "number") {
+            return c.region === regionId;
+          } else if (c.region && typeof c.region.id === "number") {
+            return c.region.id === regionId;
+          }
+          return false;
+        });
+        setFilteredCities(filtered);
+      } else {
+        setFilteredCities([]);
+      }
+    }
   };
 
+  // -------------- FILTER & PAGINATION --------------
   const handleFilterSubmit = (e) => {
     e.preventDefault();
-    // Reset to page 1 whenever new filters apply
-    setCurrentPage(1);
     setFilters({ ...filterInput });
+    setCurrentPage(1);
   };
 
   const handleClearFilters = () => {
     setFilterInput({ ...defaultFilters });
     setFilters({ ...defaultFilters });
+    setFilteredCities([]);
     setCurrentPage(1);
   };
 
-  // Change page when user clicks a page in ReactPaginate
-  const handlePageClick = (selectedPage) => {
-    // 'selected' is zero-based, but DRF expects page=1-based
-    setCurrentPage(selectedPage.selected + 1);
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected + 1;
+    setCurrentPage(selectedPage);
   };
 
-  // Handler to assign courier to product
+  // -------------- ASSIGN/EDIT ASSIGNING --------------
+  // If user changes courier in dropdown
   const handleAssignCourier = async (productId, courierId) => {
     try {
+      const token = localStorage.getItem("access");
+      // Patch the product's assigned_to
       await axios.patch(
-        `${API_URL}${productId}/`,
+        `http://localhost:8000/api/accounts/products/${productId}/`,
         { assigned_to: courierId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      // Refresh list
       fetchProducts(currentPage);
     } catch (err) {
-      console.error("Error assigning courier:", err);
+      alert(
+        "Error assigning courier: " +
+          (err.response?.data?.detail || err.message)
+      );
     }
   };
 
-  // Get eligible couriers whose covered_cities include the product's city
-  const getEligibleCouriers = (productCity) => {
-    if (!productCity) return [];
+  // For each product's city, find the couriers that cover it
+  const getEligibleCouriers = (product) => {
+    if (!product.city) return [];
     const cityId =
-      typeof productCity === "object"
-        ? Number(productCity.id)
-        : Number(productCity);
+      typeof product.city === "number" ? product.city : product.city.id;
     return couriers.filter((courier) => {
+      // If covered_cities is an array of IDs or city objects
       if (!courier.covered_cities) return false;
-      return courier.covered_cities.some((city) => {
-        const cId = typeof city === "object" ? Number(city.id) : Number(city);
-        return cId === cityId;
+      return courier.covered_cities.some((c) => {
+        if (typeof c === "number") return c === cityId;
+        // Or if c is object { id: N, name: "..."}
+        return c.id === cityId;
       });
     });
   };
 
-  // Determine assigned courier's ID
+  // Get current assigned courier's ID
   const getAssignedCourierId = (product) => {
     if (!product.assigned_to) return "";
-    return typeof product.assigned_to === "object"
-      ? product.assigned_to.id
-      : product.assigned_to;
+    // If assigned_to is an ID or an object
+    return typeof product.assigned_to === "number"
+      ? product.assigned_to
+      : product.assigned_to.id;
   };
 
-  if (loading) return <div className="product-list">Loading products...</div>;
-  if (error) return <div className="product-list">Error: {error}</div>;
-
-  // Calculate how many total pages are needed for react-paginate
-  // (if your DRF PAGE_SIZE is 10, this is totalCount / 10)
-  const pageCount = Math.ceil(totalCount / pageSize);
+  if (loading) return <div className="product-table">Loading products...</div>;
+  if (error) return <div className="product-table">Error: {error}</div>;
 
   return (
-    <div className="product-list">
+    <div className="product-table">
       <div className="filter-bar">
         <form onSubmit={handleFilterSubmit}>
           <label>
@@ -166,7 +229,7 @@ const ProductList = () => {
             <select
               name="order_status"
               value={filterInput.order_status}
-              onChange={handleInputChange}
+              onChange={handleFilterChange}
             >
               <option value="">All</option>
               <option value="Pending">Pending</option>
@@ -175,38 +238,53 @@ const ProductList = () => {
               <option value="Cancelled">Cancelled</option>
             </select>
           </label>
+
           <label>
             Region:
-            <input
-              type="text"
+            <select
               name="region"
-              placeholder="Region"
               value={filterInput.region}
-              onChange={handleInputChange}
-            />
+              onChange={handleFilterChange}
+            >
+              <option value="">-- Select Region --</option>
+              {regions.map((reg) => (
+                <option key={reg.id} value={reg.id}>
+                  {reg.name}
+                </option>
+              ))}
+            </select>
           </label>
+
           <label>
             City:
-            <input
-              type="text"
+            <select
               name="city"
-              placeholder="City"
               value={filterInput.city}
-              onChange={handleInputChange}
-            />
+              onChange={handleFilterChange}
+              disabled={!filterInput.region}
+            >
+              <option value="">-- Select City --</option>
+              {filteredCities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
           </label>
+
           <label>
             Assigned:
             <select
               name="assigned"
               value={filterInput.assigned}
-              onChange={handleInputChange}
+              onChange={handleFilterChange}
             >
               <option value="">All</option>
               <option value="assigned">Assigned</option>
               <option value="unassigned">Unassigned</option>
             </select>
           </label>
+
           <button type="submit">Apply Filters</button>
           <button type="button" onClick={handleClearFilters}>
             Clear Filters
@@ -214,67 +292,62 @@ const ProductList = () => {
         </form>
       </div>
 
-      <table>
+      <table className="minimal-table">
         <thead>
           <tr>
-            <th>Order Number</th>
+            <th>Order #</th>
             <th>Date</th>
             <th>Address</th>
             <th>Region</th>
             <th>City</th>
-            <th>Phone Number</th>
+            <th>Phone</th>
             <th>Order Status</th>
             <th>Assigned Courier</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => {
-            let eligibleCouriers = getEligibleCouriers(product.city);
-            const currentAssignedId = getAssignedCourierId(product);
+          {products.map((p) => {
+            const assignedCourierId = getAssignedCourierId(p);
+            const eligibleCouriers = getEligibleCouriers(p);
 
-            // If assigned courier isn't in the eligible list, add it
+            // If the assigned courier isn't in the eligible list, add it
             if (
-              currentAssignedId &&
-              !eligibleCouriers.some((c) => c.id === currentAssignedId)
+              assignedCourierId &&
+              !eligibleCouriers.some((c) => c.id === assignedCourierId)
             ) {
               const assignedCourier = couriers.find(
-                (c) => c.id === currentAssignedId
+                (c) => c.id === assignedCourierId
               );
               if (assignedCourier) {
-                eligibleCouriers = [...eligibleCouriers, assignedCourier];
+                eligibleCouriers.push(assignedCourier);
               }
             }
 
             return (
-              <tr key={product.id}>
-                <td>{product.order_number}</td>
-                <td>{new Date(product.date).toLocaleDateString()}</td>
-                <td>{product.address}</td>
-                <td>{product.region_name}</td>
-                <td>{product.city_name}</td>
-                <td>{product.phone_number}</td>
-                <td>{product.order_status}</td>
+              <tr key={p.id}>
+                <td>{p.order_number}</td>
+                <td>{new Date(p.date).toLocaleDateString()}</td>
+                <td>{p.address}</td>
+                <td>{p.region_name}</td>
+                <td>{p.city_name}</td>
+                <td>{p.phone_number}</td>
+                <td>{p.order_status}</td>
                 <td>
                   <select
-                    className="courier-dropdown"
-                    value={currentAssignedId}
-                    onChange={(e) =>
-                      handleAssignCourier(product.id, e.target.value)
-                    }
+                    value={assignedCourierId}
+                    onChange={(e) => handleAssignCourier(p.id, e.target.value)}
                   >
-                    <option value="">Select Courier</option>
+                    <option value="">-- Assign Courier --</option>
                     {eligibleCouriers.length > 0 ? (
-                      eligibleCouriers.map((courier) => (
-                        <option key={courier.id} value={courier.id}>
-                          {courier.user && courier.user.full_name
-                            ? courier.user.full_name
-                            : `Courier ${courier.id}`}
+                      eligibleCouriers.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.user && c.user.full_name
+                            ? c.user.full_name
+                            : `Courier ${c.id}`}
                         </option>
                       ))
                     ) : (
-                      <option value="" disabled>
-                        No eligible courier
-                      </option>
+                      <option disabled>No eligible courier</option>
                     )}
                   </select>
                 </td>
@@ -284,23 +357,17 @@ const ProductList = () => {
         </tbody>
       </table>
 
-      {/* Pagination UI */}
-      {pageCount > 1 && (
-        <ReactPaginate
-          previousLabel={"← Previous"}
-          nextLabel={"Next →"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={3}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          activeClassName={"active"}
-          forcePage={currentPage - 1} // because react-paginate is 0-based
-        />
-      )}
+      <ReactPaginate
+        previousLabel={"← Previous"}
+        nextLabel={"Next →"}
+        breakLabel={"..."}
+        pageCount={pageCount}
+        marginPagesDisplayed={1}
+        pageRangeDisplayed={3}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"}
+        activeClassName={"active"}
+      />
     </div>
   );
-};
-
-export default ProductList;
+}

@@ -3,6 +3,13 @@ import ReactPaginate from "react-paginate";
 import axios from "../../axiosConfig"; // or your custom Axios instance
 import "../../style/courier_table.scss";
 
+const defaultFilters = {
+  order_status: "",
+  region: "",
+  city: "",
+  assigned: "",
+};
+
 const CourierTable = () => {
   const [couriers, setCouriers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +72,7 @@ const CourierTable = () => {
   if (error) return <div className="couriers-table">Error: {error}</div>;
 
   // Calculate total pages
-  const pageCount = Math.ceil(totalCount / pageSize);
+  const pageCountCalc = Math.ceil(totalCount / pageSize);
 
   return (
     <div className="couriers-table">
@@ -85,26 +92,27 @@ const CourierTable = () => {
             const fullName =
               courier.user && courier.user.full_name
                 ? courier.user.full_name
-                : `(No name)`;
+                : "(No name)";
             const userName =
               courier.user && courier.user.username
                 ? courier.user.username
-                : `(No username)`;
+                : "(No username)";
 
-            // If covered_cities is an array of objects with "name", etc.
-            let cityNames = [];
-            if (courier.covered_cities && courier.covered_cities.length > 0) {
-              cityNames = courier.covered_cities.map((city) =>
-                typeof city === "object" ? city.name : city
-              );
-            }
+            // Use the new field if provided by the backend
+            const citiesDisplay = courier.covered_cities_names
+              ? courier.covered_cities_names
+              : courier.covered_cities && courier.covered_cities.length > 0
+              ? courier.covered_cities
+                  .map((city) => (typeof city === "object" ? city.name : city))
+                  .join(", ")
+              : "(none)";
 
             return (
               <tr key={courier.id}>
                 <td>{courier.id}</td>
                 <td>{fullName}</td>
                 <td>{userName}</td>
-                <td>{cityNames.join(", ")}</td>
+                <td>{citiesDisplay}</td>
                 <td>{courier.plain_password || "(none)"}</td>
               </tr>
             );
@@ -113,12 +121,14 @@ const CourierTable = () => {
       </table>
 
       {/* Pagination Component */}
-      {pageCount > 1 && (
+      {pageCountCalc > 1 && (
         <ReactPaginate
           previousLabel={"← Previous"}
           nextLabel={"Next →"}
           breakLabel={"..."}
-          pageCount={pageCount}
+          pageCount={pageCountCalc}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={3}
           onPageChange={handlePageClick}
           containerClassName={"pagination"}
           activeClassName={"active"}

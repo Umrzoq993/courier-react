@@ -59,25 +59,25 @@ export default function SidebarItem({ collapsed, toggled, onHeaderClick }) {
         </Menu>
         <Menu>
           <MenuItem component={<Link to="/main" />} icon={<HomeIcon />}>
-            Dashboard
+            Asosiy sahifa
           </MenuItem>
           <MenuItem
             component={<Link to="/main/products" />}
             icon={<ShoppingCart />}
           >
-            Products
+            Pochtalar
           </MenuItem>
           <MenuItem component={<Link to="/main/couriers" />} icon={<Truck />}>
-            Couriers
+            Kuryerlar
           </MenuItem>
           <MenuItem component={<Link to="/main/cities" />} icon={<Landmark />}>
-            Cities
+            Shaharlar
           </MenuItem>
           <MenuItem
             component={<Link to="/main/regions" />}
             icon={<Building2Icon />}
           >
-            Regions
+            Viloyatlar
           </MenuItem>
         </Menu>
       </Sidebar>
